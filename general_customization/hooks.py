@@ -228,3 +228,4 @@ override_doctype_class = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
+fixtures = ["Custom Field"]
