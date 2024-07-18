@@ -200,12 +200,15 @@ def get_gl_entries(filters, accounting_dimensions):
 			cost_center, project, {transaction_currency_fields}
 			against_voucher_type, against_voucher, account_currency,
 			against, is_opening, creation {select_fields},
-			COALESCE(item.item_name, '') as item  -- Handling NULL item_name with COALESCE
+			COALESCE(item.item_name, '') as item,  -- Handling NULL item_name with COALESCE
+			item.rate  as rate  -- Handling NULL item_name with COALESCE
+			
 		from `tabGL Entry`
 		    LEFT JOIN (
         SELECT
             item_name,
-            parent
+            parent,
+			rate
         FROM
             `tabPurchase Invoice Item`
 
@@ -213,7 +216,8 @@ def get_gl_entries(filters, accounting_dimensions):
 
         SELECT
             item_name,
-            parent
+            parent,
+			rate
         FROM
             `tabSales Invoice Item`
     ) AS item ON `tabGL Entry`.voucher_no = item.parent
@@ -620,6 +624,7 @@ def get_columns(filters):
 			"width": 130,
 		},
 		{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
+		{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 },
 	]
 
 	if filters.get("add_values_in_transaction_currency"):
