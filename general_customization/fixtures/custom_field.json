@@ -1,0 +1,21 @@
+[
+    {
+    "doctype": "Custom Field",
+    "dt": "Sales Invoice",
+    "fieldname": "party_balance",
+    "insert_after": "company",
+    "fieldtype": "Read Only",
+    "label": "Party Balance",
+    "module": "General Customization",
+    "name": "Sales Invoice-party_balance"
+   }, 
+   {
+    "doctype": "Custom Field",
+    "dt": "Purchase Invoice",
+    "fieldname": "party_balance",
+    "fieldtype": "Read Only",
+    "insert_after": "tax_id",
+    "label": "party_balance",
+    "name": "Purchase Invoice-party_balance"
+   }
+]

@@ -10,7 +10,8 @@ frappe.ui.form.on('Sales Invoice', {
 
                 callback: function(r) {
                    if (r.message) {
-                        frm.set_value('custom_party_balance', r.message);
+                    console.log(r.message);
+                        frm.set_value('party_balance', r.message);
                         console.log("Customer selected: " + frm.doc.customer + ", custom balance set: " + r.message);
                     }
                 }

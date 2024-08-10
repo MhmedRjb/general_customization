@@ -63,47 +63,54 @@ frappe.query_reports["general ledger with items"] = {
 		{
 			fieldname: "party_type",
 			label: __("Party Type"),
-			fieldtype: "Autocomplete",
+			fieldtype: "MultiSelectList",
 			options: Object.keys(frappe.boot.party_account_types),
 			on_change: function () {
 				frappe.query_report.set_filter_value("party", "");
 			},
 		},
-		{
-			fieldname: "party",
-			label: __("Party"),
-			fieldtype: "MultiSelectList",
-			get_data: function (txt) {
-				if (!frappe.query_report.filters) return;
+        {
+            fieldname: "party",
+            label: __("Party"),
+            fieldtype: "MultiSelectList",
+            get_data: function (txt) {
+                if (!frappe.query_report.filters) return;
 
-				let party_type = frappe.query_report.get_filter_value("party_type");
-				if (!party_type) return;
+                let party_types = frappe.query_report.get_filter_value("party_type");
+                if (!party_types || party_types.length === 0) return;
 
-				return frappe.db.get_link_options(party_type, txt);
-			},
-			on_change: function () {
-				var party_type = frappe.query_report.get_filter_value("party_type");
-				var parties = frappe.query_report.get_filter_value("party");
+                // Fetch link options for all selected party types
+                let promises = party_types.map(party_type => frappe.db.get_link_options(party_type, txt));
+                return Promise.all(promises).then(results => [].concat(...results));
+            },
+            on_change: function () {
+                let party_types = frappe.query_report.get_filter_value("party_type");
+                let parties = frappe.query_report.get_filter_value("party");
 
-				if (!party_type || parties.length === 0 || parties.length > 1) {
-					frappe.query_report.set_filter_value("party_name", "");
-					frappe.query_report.set_filter_value("tax_id", "");
-					return;
-				} else {
-					var party = parties[0];
-					var fieldname = erpnext.utils.get_party_name(party_type) || "name";
-					frappe.db.get_value(party_type, party, fieldname, function (value) {
-						frappe.query_report.set_filter_value("party_name", value[fieldname]);
-					});
+                if (!party_types || party_types.length === 0 || parties.length === 0 || parties.length > 1) {
+                    frappe.query_report.set_filter_value("party_name", "");
+                    frappe.query_report.set_filter_value("tax_id", "");
+                    return;
+                }
 
-					if (party_type === "Customer" || party_type === "Supplier") {
-						frappe.db.get_value(party_type, party, "tax_id", function (value) {
-							frappe.query_report.set_filter_value("tax_id", value["tax_id"]);
-						});
-					}
-				}
-			},
-		},
+                // Assuming only one party is selected
+                let party = parties[0];
+                let party_type = party_types.length === 1 ? party_types[0] : null;
+
+                if (party_type) {
+                    let fieldname = erpnext.utils.get_party_name(party_type) || "name";
+                    frappe.db.get_value(party_type, party, fieldname, function (value) {
+                        frappe.query_report.set_filter_value("party_name", value[fieldname]);
+                    });
+
+                    if (party_type === "Customer" || party_type === "Supplier") {
+                        frappe.db.get_value(party_type, party, "tax_id", function (value) {
+                            frappe.query_report.set_filter_value("tax_id", value["tax_id"]);
+                        });
+                    }
+                }
+            },
+        },
 		{
 			fieldname: "party_name",
 			label: __("Party Name"),

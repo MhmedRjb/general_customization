@@ -9,7 +9,8 @@ frappe.ui.form.on('Purchase Invoice', {
                 },
                 callback: function(r) {
                     if (r.message) {
-                        frm.set_value('custom_party_balance', r.message);
+                        console.log(r.message);
+                        frm.set_value('party_balance', r.message);
                         console.log("supplier selected: " + frm.doc.supplier + ", custom balance set: " + r.message);
                     }
                 }

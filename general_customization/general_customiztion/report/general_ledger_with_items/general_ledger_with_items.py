@@ -36,9 +36,11 @@ def execute(filters=None):
 	if filters.get("party"):
 		filters.party = frappe.parse_json(filters.get("party"))
 
+	if filters.get("party_type"):
+		filters.party_type = frappe.parse_json(filters.get("party_type"))
+
 	validate_filters(filters, account_details)
 
-	validate_party(filters)
 
 	filters = set_account_currency(filters)
 
@@ -94,10 +96,6 @@ def validate_filters(filters, account_details):
 def validate_party(filters):
 	party_type, party = filters.get("party_type"), filters.get("party")
 
-	if party and party_type:
-		for d in party:
-			if not frappe.db.exists(party_type, d):
-				frappe.throw(_("Invalid {0}: {1}").format(party_type, d))
 
 
 def set_account_currency(filters):
@@ -122,7 +120,7 @@ def set_account_currency(filters):
 		elif filters.get("party") and filters.get("party_type"):
 			gle_currency = frappe.db.get_value(
 				"GL Entry",
-				{"party_type": filters.party_type, "party": filters.party[0], "company": filters.company},
+				{"party_type": filters.party_type[0], "party": filters.party[0], "company": filters.company},
 				"account_currency",
 			)
 
@@ -131,8 +129,8 @@ def set_account_currency(filters):
 			else:
 				account_currency = (
 					None
-					if filters.party_type in ["Employee", "Shareholder", "Member"]
-					else frappe.get_cached_value(filters.party_type, filters.party[0], "default_currency")
+					if filters.party_type[0] in ["Employee", "Shareholder", "Member"]
+					else frappe.get_cached_value(filters.party_type[0], filters.party[0], "default_currency")
 				)
 
 		filters["account_currency"] = account_currency or filters.company_currency
@@ -228,6 +226,7 @@ def get_gl_entries(filters, accounting_dimensions):
 		filters,
 		as_dict=1,
 	)
+	print(gl_entries)
 
 	if filters.get("presentation_currency"):
 		return convert_to_presentation_currency(gl_entries, currency_map)
@@ -273,7 +272,7 @@ def get_conditions(filters):
 		conditions.append("party_type in ('Customer', 'Supplier')")
 
 	if filters.get("party_type"):
-		conditions.append("party_type=%(party_type)s")
+		conditions.append("party_type in %(party_type)s")
 
 	if filters.get("party"):
 		conditions.append("party in %(party)s")
@@ -511,6 +510,7 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
 					gle.get("account"),
 					gle.get("party_type"),
 					gle.get("party"),
+					gle.get("item"),
 				]
 
 				if immutable_ledger:
