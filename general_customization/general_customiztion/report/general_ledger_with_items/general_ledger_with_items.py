@@ -518,9 +518,9 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
 					gle.get("voucher_no"),
 					gle.get("account"),
 					gle.get("party_type"),
-					gle.get("party"),
-					gle.get("item")
+					gle.get("party")
 				]
+
 
 				if immutable_ledger:
 					keylist.append(gle.get("creation"))
@@ -529,6 +529,9 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
 					for dim in accounting_dimensions:
 						keylist.append(gle.get(dim))
 					keylist.append(gle.get("cost_center"))
+					
+				if filters.get("show_item_details"):
+					keylist.append(gle.get("item"))
 
 				key = tuple(keylist)
 				if key not in consolidated_gle:
@@ -536,6 +539,7 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
 				else:
 					update_value_in_dict(consolidated_gle, key, gle)
 
+					
 	for value in consolidated_gle.values():
 		update_value_in_dict(totals, "total", value)
 		update_value_in_dict(totals, "closing", value)
@@ -631,12 +635,16 @@ def get_columns(filters):
 			"fieldname": "balance",
 			"fieldtype": "Float",
 			"width": 130,
-		},
-			{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
-		{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 }
+		}
 
 		
 	]
+	if filters.get("show_item_details"):
+		columns +=[
+			{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
+			{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 },
+			{ "label": _("amount"), "fieldname": "amount", "fieldtype": "int", "width": 100 }
+		]
 
 
 	if filters.get("add_values_in_transaction_currency"):
@@ -710,4 +718,9 @@ def get_columns(filters):
 
 	if filters.get("show_remarks"):
 		columns.extend([{"label": _("Remarks"), "fieldname": "remarks", "width": 400}])
+
+
+
+
+
 	return columns
