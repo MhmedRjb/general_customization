@@ -139,6 +139,7 @@ frappe.query_reports["general ledger with items"] = {
 					label: __("Group by Party"),
 					value: "Group by Party",
 				},
+				
 			],
 			default: "Group by Voucher (Consolidated)",
 		},
@@ -215,8 +216,8 @@ frappe.query_reports["general ledger with items"] = {
 			fieldname: "ignore_err",
 			label: __("Ignore Exchange Rate Revaluation Journals"),
 			fieldtype: "Check",
-		},
+		}
 	],
 };
 
-erpnext.utils.add_dimensions("General Ledger", 15);
+erpnext.utils.add_dimensions("General Ledger", 16);

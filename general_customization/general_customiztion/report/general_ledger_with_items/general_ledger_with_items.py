@@ -190,48 +190,55 @@ def get_gl_entries(filters, accounting_dimensions):
 			"debit_in_transaction_currency, credit_in_transaction_currency, transaction_currency,"
 		)
 
+
 	gl_entries = frappe.db.sql(
 		f"""
 		select
 			name as gl_entry, posting_date, account, party_type, party,
-			voucher_type,voucher_subtype, voucher_no, {dimension_fields}
+			voucher_type, voucher_subtype, voucher_no, {dimension_fields}
 			cost_center, project, {transaction_currency_fields}
 			against_voucher_type, against_voucher, account_currency,
 			against, is_opening, creation {select_fields},
-			COALESCE(item.item_name, '') as item,  -- Handling NULL item_name with COALESCE
-			item.rate  as rate  -- Handling NULL item_name with COALESCE
-			
+			COALESCE(item.item_name, '') as item, 
+			item.rate  as rate  ,
+			item.amount  as amount  
 		from `tabGL Entry`
-		    LEFT JOIN (
-        SELECT
-            item_name,
-            parent,
-			rate
-        FROM
-            `tabPurchase Invoice Item`
+		LEFT JOIN (
+			SELECT
+				item_name,
+				parent,
+				amount,
+				rate
+			FROM
+				`tabPurchase Invoice Item`
 
-        UNION ALL
+			UNION ALL
 
-        SELECT
-            item_name,
-            parent,
-			rate
-        FROM
-            `tabSales Invoice Item`
-    ) AS item ON `tabGL Entry`.voucher_no = item.parent
-
+			SELECT
+				item_name,
+				parent,
+				amount,
+				rate
+			FROM
+				`tabSales Invoice Item`
+		) AS item ON `tabGL Entry`.voucher_no = item.parent
 		where company=%(company)s {get_conditions(filters)}
 		{order_by_statement}
-	""",
+		""",
 		filters,
 		as_dict=1,
 	)
-	print(gl_entries)
+
+	for entry in gl_entries:
+		if entry['voucher_type'] in ['Sales Invoice', 'Purchase Invoice'] and entry.get('amount'):
+			entry['debit'] = entry['amount'] if entry['debit'] else 0
+			entry['credit'] = entry['amount'] if entry['credit'] else 0
 
 	if filters.get("presentation_currency"):
 		return convert_to_presentation_currency(gl_entries, currency_map)
 	else:
 		return gl_entries
+		
 
 
 def get_conditions(filters):
@@ -331,8 +338,10 @@ def get_conditions(filters):
 						conditions.append(f"{dimension.fieldname} in %({dimension.fieldname})s")
 					else:
 						conditions.append(f"{dimension.fieldname} in %({dimension.fieldname})s")
+	
 
 	return "and {}".format(" and ".join(conditions)) if conditions else ""
+
 
 
 def get_accounts_with_children(accounts):
@@ -510,7 +519,7 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
 					gle.get("account"),
 					gle.get("party_type"),
 					gle.get("party"),
-					gle.get("item"),
+					gle.get("item")
 				]
 
 				if immutable_ledger:
@@ -623,9 +632,12 @@ def get_columns(filters):
 			"fieldtype": "Float",
 			"width": 130,
 		},
-		{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
-		{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 },
+			{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
+		{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 }
+
+		
 	]
+
 
 	if filters.get("add_values_in_transaction_currency"):
 		columns += [
@@ -698,5 +710,4 @@ def get_columns(filters):
 
 	if filters.get("show_remarks"):
 		columns.extend([{"label": _("Remarks"), "fieldname": "remarks", "width": 400}])
-
 	return columns
