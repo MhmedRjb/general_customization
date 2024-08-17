@@ -11,7 +11,10 @@ include some small powrfull customization enhncement the experince
     
 ![invoice details](https://github.com/user-attachments/assets/3433b798-2906-4c01-b5dc-7790565a6b42)
 
+## how to install
+`bench get-app https://github.com/MhmedRjb/general_customization`
 
+`bench install-app --site <site name> general_customization`
 
 #### License
 
