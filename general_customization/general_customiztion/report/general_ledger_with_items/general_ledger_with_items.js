@@ -225,6 +225,17 @@ frappe.query_reports["general ledger with items"] = {
 		}
 
 	],
+	
+    // Add dimensions for the General Ledger report
+
+    // Function to show a message when the report is loaded
+    onload: function(report) {
+        frappe.msgprint({
+            title: __("Report Notice"),
+            indicator: 'orange',
+            message: __("Note: This report still in beta version.")
+        });
+    }
 };
 
-erpnext.utils.add_dimensions("General Ledger", 16);
+erpnext.utils.add_dimensions("general ledger with items", 15)

@@ -24,6 +24,9 @@ TRANSLATIONS = frappe._dict()
 def execute(filters=None):
 	if not filters:
 		return [], []
+	message = None
+	if filters.get("show_item_details"):
+		message = _("Notice: This report is in its beta phase and is subject to ongoing improvements. Users are advised to review the data carefully and report any discrepancies.")
 
 	account_details = {}
 
@@ -50,7 +53,7 @@ def execute(filters=None):
 
 	res = get_result(filters, account_details)
 
-	return columns, res
+	return columns, res, message
 
 
 def update_translations():
