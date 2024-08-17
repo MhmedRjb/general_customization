@@ -172,14 +172,14 @@ def get_item_details_for_entries(gl_entries):
 		if entry.get("voucher_type") in voucher_type_map and voucher_no not in processed_voucher_nos:
 			item_details = frappe.db.get_all(
 				voucher_type_map[entry.get("voucher_type")],
-				fields=["item_code", "rate", "amount"],
+				fields=["item_code", "rate", "amount", "qty"],
 				filters={"parent": entry.get("voucher_no")}
 			)
 			processed_voucher_nos.add(voucher_no)
 			if item_details:
 				for item in item_details:
 					entry = entry.copy()
-					entry["item"],entry["rate"],entry["amount"] = item["item_code"], item["rate"], item["amount"]
+					entry["item"],entry["rate"],entry["amount"] ,entry["qty"]= item["item_code"], item["rate"], item["amount"], item["qty"]
 					entry["debit"] = abs(item["amount"]) if item["amount"] > 0 else 0
 					entry["credit"] = abs(item["amount"]) if item["amount"] < 0 else 0
 					new_gl_entries.append(entry)
@@ -655,7 +655,9 @@ def get_columns(filters):
 		columns +=[
 			{ "label": _("item"), "fieldname": "item", "fieldtype": "Data", "width": 100 },
 			{ "label": _("rate"), "fieldname": "rate", "fieldtype": "int", "width": 100 },
-			{ "label": _("amount"), "fieldname": "amount", "fieldtype": "int", "width": 100 }
+			{ "label": _("amount"), "fieldname": "amount", "fieldtype": "int", "width": 100, "hidden": 1 },
+			{ "label": _("qty"), "fieldname": "qty", "fieldtype": "int", "width": 100 }
+
 		]
 
 
