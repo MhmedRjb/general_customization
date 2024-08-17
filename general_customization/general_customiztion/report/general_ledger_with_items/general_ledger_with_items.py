@@ -153,6 +153,40 @@ def get_result(filters, account_details):
 
 	return result
 
+#add journal entry item details to the gl entries
+def get_item_details_for_entries(gl_entries):
+	# Define the voucher type map
+	voucher_type_map = {
+		"Sales Invoice": "Sales Invoice Item",
+		"Purchase Invoice": "Purchase Invoice Item"
+		
+
+	}
+
+	# Initialize a list to hold the updated GL entries
+	new_gl_entries = []
+	processed_voucher_nos = set()
+
+	for entry in gl_entries:
+		voucher_no = entry.get("voucher_no")
+		if entry.get("voucher_type") in voucher_type_map and voucher_no not in processed_voucher_nos:
+			item_details = frappe.db.get_all(
+				voucher_type_map[entry.get("voucher_type")],
+				fields=["item_code", "rate", "amount"],
+				filters={"parent": entry.get("voucher_no")}
+			)
+			processed_voucher_nos.add(voucher_no)
+			if item_details:
+				for item in item_details:
+					entry = entry.copy()
+					entry["item"],entry["rate"],entry["amount"] = item["item_code"], item["rate"], item["amount"]
+					entry["debit"] = abs(item["amount"]) if item["amount"] > 0 else 0
+					entry["credit"] = abs(item["amount"]) if item["amount"] < 0 else 0
+					new_gl_entries.append(entry)
+		else:
+			new_gl_entries.append(entry)
+	return new_gl_entries
+
 
 def get_gl_entries(filters, accounting_dimensions):
 	currency_map = get_currency(filters)
@@ -198,41 +232,19 @@ def get_gl_entries(filters, accounting_dimensions):
 			voucher_type, voucher_subtype, voucher_no, {dimension_fields}
 			cost_center, project, {transaction_currency_fields}
 			against_voucher_type, against_voucher, account_currency,
-			against, is_opening, creation {select_fields},
-			COALESCE(item.item_name, '') as item, 
-			item.rate  as rate  ,
-			item.amount  as amount  
+			against, is_opening, creation {select_fields}
 		from `tabGL Entry`
-		LEFT JOIN (
-			SELECT
-				item_name,
-				parent,
-				amount,
-				rate
-			FROM
-				`tabPurchase Invoice Item`
-
-			UNION ALL
-
-			SELECT
-				item_name,
-				parent,
-				amount,
-				rate
-			FROM
-				`tabSales Invoice Item`
-		) AS item ON `tabGL Entry`.voucher_no = item.parent
 		where company=%(company)s {get_conditions(filters)}
 		{order_by_statement}
 		""",
 		filters,
 		as_dict=1,
+
 	)
 
-	for entry in gl_entries:
-		if entry['voucher_type'] in ['Sales Invoice', 'Purchase Invoice'] and entry.get('amount'):
-			entry['debit'] = entry['amount'] if entry['debit'] else 0
-			entry['credit'] = entry['amount'] if entry['credit'] else 0
+	if filters.get("show_item_details") and gl_entries:
+		gl_entries = get_item_details_for_entries(gl_entries)
+
 
 	if filters.get("presentation_currency"):
 		return convert_to_presentation_currency(gl_entries, currency_map)
