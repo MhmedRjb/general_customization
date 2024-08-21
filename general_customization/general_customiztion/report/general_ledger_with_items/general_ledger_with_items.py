@@ -183,8 +183,8 @@ def get_item_details_for_entries(gl_entries):
 				for item in item_details:
 					entry = entry.copy()
 					entry["item"],entry["rate"],entry["amount"] ,entry["qty"]= item["item_code"], item["rate"], item["amount"], item["qty"]
-					entry["debit"] = abs(item["amount"]) if item["amount"] > 0 else 0
-					entry["credit"] = abs(item["amount"]) if item["amount"] < 0 else 0
+					entry["debit"] = abs(item["amount"]) if entry["debit"] else 0 
+					entry["credit"] = abs(item["amount"]) if entry["credit"] else 0
 					new_gl_entries.append(entry)
 		else:
 			new_gl_entries.append(entry)
