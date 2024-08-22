@@ -156,29 +156,22 @@ def get_result(filters, account_details):
 
 	return result
 
-#add journal entry item details to the gl entries
 def get_item_details_for_entries(gl_entries):
-	# Define the voucher type map
 	voucher_type_map = {
 		"Sales Invoice": "Sales Invoice Item",
 		"Purchase Invoice": "Purchase Invoice Item"
-		
-
 	}
-
-	# Initialize a list to hold the updated GL entries
 	new_gl_entries = []
 	processed_voucher_nos = set()
 
 	for entry in gl_entries:
-		voucher_no = entry.get("voucher_no")
-		if entry.get("voucher_type") in voucher_type_map and voucher_no not in processed_voucher_nos:
+		if entry.get("voucher_type") in voucher_type_map and entry.get("voucher_no") not in processed_voucher_nos and entry.get("against") != entry.get("party"):
 			item_details = frappe.db.get_all(
 				voucher_type_map[entry.get("voucher_type")],
 				fields=["item_code", "rate", "amount", "qty"],
 				filters={"parent": entry.get("voucher_no")}
 			)
-			processed_voucher_nos.add(voucher_no)
+			processed_voucher_nos.add(entry.get("voucher_no"))
 			if item_details:
 				for item in item_details:
 					entry = entry.copy()
@@ -237,7 +230,7 @@ def get_gl_entries(filters, accounting_dimensions):
 			against_voucher_type, against_voucher, account_currency,
 			against, is_opening, creation {select_fields}
 		from `tabGL Entry`
-		where company=%(company)s {get_conditions(filters)}
+		where company=%(company)s  {get_conditions(filters)}
 		{order_by_statement}
 		""",
 		filters,
