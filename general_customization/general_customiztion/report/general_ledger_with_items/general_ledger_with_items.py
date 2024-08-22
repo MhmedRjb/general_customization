@@ -171,7 +171,6 @@ def get_item_details_for_entries(gl_entries):
 	processed_voucher_nos = set()
 
 	for entry in gl_entries:
-		entry['voucher_type'] = voucher_type_mapping.get(entry['voucher_type'], entry['voucher_type'])
 		if  entry.get("voucher_type") in voucher_type_map and entry.get("voucher_no") not in processed_voucher_nos :
 			item_details = frappe.db.get_all(
 				voucher_type_map[entry.get("voucher_type")],
