@@ -158,14 +158,9 @@ def get_result(filters, account_details):
 
 def get_item_details_for_entries(gl_entries):
 	voucher_type_map = {
-		"Sales Invoice": "Sales Invoice Item",
-		"Purchase Invoice": "Purchase Invoice Item"
+		"فاتورة بيع": "Sales Invoice Item",
+		"فاتورة شراء": "Purchase Invoice Item"
 	}
-	voucher_type_mapping = {
-    'Purchase Invoice': 'فاتورة شراء',
-    'Journal Entry': 'قيد يومي',
-    'Sales Invoice': 'فاتورة بيع'
-}
 
 	new_gl_entries = []
 	processed_voucher_nos = set()
