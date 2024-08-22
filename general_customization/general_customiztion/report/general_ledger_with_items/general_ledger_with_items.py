@@ -165,7 +165,7 @@ def get_item_details_for_entries(gl_entries):
 	processed_voucher_nos = set()
 
 	for entry in gl_entries:
-		if entry.get("voucher_type") in voucher_type_map and entry.get("voucher_no") not in processed_voucher_nos and entry.get("against") != entry.get("party"):
+		if  entry.get("voucher_type") in voucher_type_map and entry.get("voucher_no") not in processed_voucher_nos :
 			item_details = frappe.db.get_all(
 				voucher_type_map[entry.get("voucher_type")],
 				fields=["item_code", "rate", "amount", "qty"],
@@ -230,7 +230,7 @@ def get_gl_entries(filters, accounting_dimensions):
 			against_voucher_type, against_voucher, account_currency,
 			against, is_opening, creation {select_fields}
 		from `tabGL Entry`
-		where company=%(company)s  {get_conditions(filters)}
+		where company=%(company)s and against != party {get_conditions(filters)}
 		{order_by_statement}
 		""",
 		filters,
