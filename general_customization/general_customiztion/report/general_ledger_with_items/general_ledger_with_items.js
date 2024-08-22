@@ -60,6 +60,7 @@ frappe.query_reports["general ledger with items"] = {
 		{
 			fieldtype: "Break",
 		},
+
 		{
 			fieldname: "party_type",
 			label: __("Party Type"),
@@ -69,6 +70,9 @@ frappe.query_reports["general ledger with items"] = {
 				frappe.query_report.set_filter_value("party", "");
 			},
 		},
+		//TODO: make commen party option 
+
+
         {
             fieldname: "party",
             label: __("Party"),
@@ -222,19 +226,34 @@ frappe.query_reports["general ledger with items"] = {
 			label: __("show item details"),
 			fieldtype: "Check",
 
+		},
+		{
+			fieldname :"allow_common_party",
+			label: __("Allow Commen Party"),
+			fieldtype: "Check",
+			default: 1,
+			read_only: 1
+
+	
 		}
 
-	],
-	
+
+    ],
+
     // Add dimensions for the General Ledger report
 
     // Function to show a message when the report is loaded
     onload: function(report) {
+        if (allow_common_party) {
+            console.log("Saiyed coming soon");
+            // existing code
+        }
+        
         frappe.msgprint({
             title: __("Report Notice"),
             indicator: 'orange',
             message: __("Note: This report still in beta version.")
-        });
+        });	
     }
 };
 
