@@ -161,10 +161,17 @@ def get_item_details_for_entries(gl_entries):
 		"Sales Invoice": "Sales Invoice Item",
 		"Purchase Invoice": "Purchase Invoice Item"
 	}
+	voucher_type_mapping = {
+    'Purchase Invoice': 'فاتورة شراء',
+    'Journal Entry': 'قيد يومي',
+    'Sales Invoice': 'فاتورة بيع'
+}
+
 	new_gl_entries = []
 	processed_voucher_nos = set()
 
 	for entry in gl_entries:
+		entry['voucher_type'] = voucher_type_mapping.get(entry['voucher_type'], entry['voucher_type'])
 		if  entry.get("voucher_type") in voucher_type_map and entry.get("voucher_no") not in processed_voucher_nos :
 			item_details = frappe.db.get_all(
 				voucher_type_map[entry.get("voucher_type")],
@@ -180,6 +187,7 @@ def get_item_details_for_entries(gl_entries):
 					entry["credit"] = abs(item["amount"]) if entry["credit"] else 0
 					new_gl_entries.append(entry)
 		else:
+
 			new_gl_entries.append(entry)
 	return new_gl_entries
 
@@ -225,13 +233,19 @@ def get_gl_entries(filters, accounting_dimensions):
 		f"""
 		select
 			name as gl_entry, posting_date, account, party_type, party,
-			voucher_type, voucher_subtype, voucher_no, {dimension_fields}
+			case 
+				when voucher_type = 'Purchase Invoice' then 'فاتورة شراء'
+				when voucher_type = 'Journal Entry' then 'قيد يومي'
+				when voucher_type = 'Sales Invoice' then 'فاتورة بيع'
+				when voucher_type = 'Payment Entry' then 'سند صرف'
+				else voucher_type
+			end as voucher_type,
+			voucher_subtype, voucher_no, {dimension_fields}
 			cost_center, project, {transaction_currency_fields}
 			against_voucher_type, against_voucher, account_currency,
 			against, is_opening, creation {select_fields}
 		from `tabGL Entry`
-		where company=%(company)s and against != party {get_conditions(filters)}
-		{order_by_statement}
+		where company=%(company)s and against != party {get_conditions(filters)}		{order_by_statement}
 		""",
 		filters,
 		as_dict=1,
