@@ -15,7 +15,7 @@
  "module": "general customiztion",
  "name": "general ledger with items",
  "owner": "Administrator",
- "prepared_report": 0,
+ "prepared_report": 1,
  "ref_doctype": "GL Entry",
  "report_name": "general ledger with items",
  "report_type": "Script Report",
