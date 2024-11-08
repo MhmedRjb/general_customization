@@ -10,7 +10,7 @@ This repository includes customizations that improve ERPnext. Inspired by variou
   
 
 ⚠️: this report not support the discount in the invoice we will add it later
-
+⚠️ probelm in free item 
 
 ![invoice details](https://github.com/user-attachments/assets/2093fa6d-dec9-4f66-a3a2-8bbbae855d3e)
 
