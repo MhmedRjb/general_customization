@@ -6,11 +6,7 @@ This repository includes customizations that improve ERPnext. Inspired by variou
 1. fetch party balance in sales invoice and purchser invoice 
 1. Enhance the General Ledger report to include item details under general ladger with items name:
     1. Incorporate item rows into the report.
-    1. Enable selection of both suppliers and customers simultaneously, designed specifically for Common Party Accounting. ⚠️⚠️⚠️ if customer and and supplier have the same name otherwise there will be unwanted rows but the report will stay right i will edit this in future
-  
-
-⚠️: this report not support the discount in the invoice we will add it later
-⚠️ probelm in free item 
+    1. Enable selection of both suppliers and customers simultaneously, designed specifically for Common Party Accounting. 
 
 ![invoice details](https://github.com/user-attachments/assets/2093fa6d-dec9-4f66-a3a2-8bbbae855d3e)
 
