@@ -195,6 +195,9 @@ def get_item_details_for_entries(gl_entries):
     processed_voucher_nos = set()
 
     for entry in gl_entries:
+        total_amount = entry.get("debit") - entry.get("credit")
+        #add abs to handle purchase invoice as sales invoice
+        total_amount = abs(total_amount)
         if (
             entry.get("voucher_type") in voucher_type_map
             and entry.get("voucher_no") not in processed_voucher_nos
@@ -220,8 +223,10 @@ def get_item_details_for_entries(gl_entries):
                         item["amount"],
                         item["qty"],
                     )
-                    entry["debit"] = abs(item["amount"]) if entry["debit"] else 0
-                    entry["credit"] = abs(item["amount"]) if entry["credit"] else 0
+                    entry["debit"] = abs(float(item["amount"])) if entry["debit"] != 0 or entry["debit_in_account_currency"] != 0 else 0
+                    entry["credit"] = abs(float(item["amount"])) if entry["credit"] != 0 or entry["credit_in_account_currency"] != 0 else 0
+                    total_amount -= item["amount"]
+
                     new_gl_entries.append(entry)
             
             if taxes_details:
@@ -233,11 +238,18 @@ def get_item_details_for_entries(gl_entries):
                         tax["tax_amount_after_discount_amount"],
                         "/"
                     )
-                    entry["debit"] = abs(tax["tax_amount_after_discount_amount"]) if entry["debit"] else 0
-                    entry["credit"] = abs(tax["tax_amount_after_discount_amount"]) if entry["credit"] else 0
+                    entry["debit"] = float(tax["tax_amount_after_discount_amount"]) if entry["debit"] else 0
+                    entry["credit"] = float(tax["tax_amount_after_discount_amount"]) if entry["credit"] else 0
+                    total_amount += tax["tax_amount_after_discount_amount"]
                     new_gl_entries.append(entry)
                     
-            
+            if total_amount!= 0:
+                abs(total_amount)
+                entry =entry.copy()
+                entry["item"],entry["rate"],entry["amount"],entry["qty"]=("Discount",total_amount,total_amount,"/")
+                entry["debit"] = abs(total_amount) if total_amount > 0 else 0
+                entry["credit"] = abs(total_amount) if total_amount < 0 else 0
+                new_gl_entries.append(entry)
         else:
             new_gl_entries.append(entry)
     return new_gl_entries
@@ -544,6 +556,7 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
         filters.get("group_by") == "Group by Voucher (Consolidated)"
     )
 
+    account_type_map = {}
     if filters.get("show_net_values_in_party_account"):
         account_type_map = get_account_type_map(filters.get("company"))
 
