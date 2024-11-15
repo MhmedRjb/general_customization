@@ -16,11 +16,11 @@
 //                             frm.set_value("party_balance", response.message);
 //                         }
 //                     }
-                        
+
 //                 }
 //             )
 
 //         }
-        
+
 //     }
 // })

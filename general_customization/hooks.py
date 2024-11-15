@@ -28,8 +28,10 @@ app_include_css = "/assets/general_customization/css/example.css"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Sales Invoice" : "public/js/Sales_Invoice.js",
-              "Purchase Invoice" : "public/js/Purchase_Invoice.js",}
+doctype_js = {
+    "Sales Invoice": "public/js/Sales_Invoice.js",
+    "Purchase Invoice": "public/js/Purchase_Invoice.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -227,4 +229,3 @@ override_doctype_class = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
