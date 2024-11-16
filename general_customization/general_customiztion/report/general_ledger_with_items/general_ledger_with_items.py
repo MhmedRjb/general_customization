@@ -240,7 +240,7 @@ def get_item_details_for_entries(gl_entries):
                     )
                     entry["debit"] = float(tax["tax_amount_after_discount_amount"]) if entry["debit"] else 0
                     entry["credit"] = float(tax["tax_amount_after_discount_amount"]) if entry["credit"] else 0
-                    total_amount += tax["tax_amount_after_discount_amount"]
+                    total_amount  -= tax["tax_amount_after_discount_amount"]
                     new_gl_entries.append(entry)
                     
             if total_amount!= 0:
