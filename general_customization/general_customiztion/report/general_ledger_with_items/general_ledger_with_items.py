@@ -195,9 +195,8 @@ def get_item_details_for_entries(gl_entries):
     processed_voucher_nos = set()
 
     for entry in gl_entries:
-        total_amount = entry.get("debit") - entry.get("credit")
-        #add abs to handle purchase invoice as sales invoice
-        total_amount = abs(total_amount)
+        # rounded_total = entry.get("debit") - entry.get("credit")
+        # total_amount = abs(rounded_total)
         if (
             entry.get("voucher_type") in voucher_type_map
             and entry.get("voucher_no") not in processed_voucher_nos
@@ -207,6 +206,7 @@ def get_item_details_for_entries(gl_entries):
                 fields=["item_code", "rate", "amount", "qty"],
                 filters={"parent": entry.get("voucher_no")},
             )
+            print("item_details",item_details)
             taxes_details = frappe.db.get_all(
                 taxes_map[entry.get("voucher_type")],
                 fields=["account_head","tax_amount_after_discount_amount",""],
@@ -216,6 +216,7 @@ def get_item_details_for_entries(gl_entries):
             processed_voucher_nos.add(entry.get("voucher_no"))
             if item_details:
                 for item in item_details:
+                    print("item",item)
                     entry = entry.copy()
                     entry["item"], entry["rate"], entry["amount"], entry["qty"] = (
                         item["item_code"],
@@ -225,7 +226,7 @@ def get_item_details_for_entries(gl_entries):
                     )
                     entry["debit"] = abs(float(item["amount"])) if entry["debit"] != 0 or entry["debit_in_account_currency"] != 0 else 0
                     entry["credit"] = abs(float(item["amount"])) if entry["credit"] != 0 or entry["credit_in_account_currency"] != 0 else 0
-                    total_amount -= item["amount"]
+                    # total_amount -= item["amount"]
 
                     new_gl_entries.append(entry)
             
@@ -236,19 +237,20 @@ def get_item_details_for_entries(gl_entries):
                         tax["account_head"],
                         tax["tax_amount_after_discount_amount"],
                         tax["tax_amount_after_discount_amount"],
-                        "/"
+                        ""
                     )
-                    entry["debit"] = float(tax["tax_amount_after_discount_amount"]) if entry["debit"] else 0
-                    entry["credit"] = float(tax["tax_amount_after_discount_amount"]) if entry["credit"] else 0
-                    total_amount  -= tax["tax_amount_after_discount_amount"]
+                    entry["debit"] = abs(float(tax["tax_amount_after_discount_amount"])) if entry["debit"]!=0 or entry["debit_in_account_currency"] != 0 else 0
+                    entry["credit"] = abs(float(tax["tax_amount_after_discount_amount"]) )if entry["credit"]!=0 or entry["credit_in_account_currency"] != 0 else 0
+                    # total_amount  -= tax["tax_amount_after_discount_amount"]
                     new_gl_entries.append(entry)
                     
-            if total_amount!= 0:
-                abs(total_amount)
+            discount_value=frappe.db.get_value(entry["voucher_type"],entry["voucher_no"],"discount_amount")
+            if discount_value:
                 entry =entry.copy()
-                entry["item"],entry["rate"],entry["amount"],entry["qty"]=("Discount",total_amount,total_amount,"/")
-                entry["debit"] = abs(total_amount) if total_amount > 0 else 0
-                entry["credit"] = abs(total_amount) if total_amount < 0 else 0
+                discount=_("Discount")
+                entry["item"],entry["rate"],entry["amount"],entry["qty"]=(discount,discount_value,discount_value,"")
+                entry["debit"] = abs(discount_value) if entry.get("voucher_type") == "Purchase Invoice" else 0
+                entry["credit"] = abs(discount_value) if entry.get("voucher_type") == "Sales Invoice" else 0
                 new_gl_entries.append(entry)
         else:
             new_gl_entries.append(entry)
@@ -565,8 +567,17 @@ def get_accountwise_gle(filters, accounting_dimensions, gl_entries, gle_map):
     )
 
     def update_value_in_dict(data, key, gle):
+        if data[key].qty:
+            data[key].qty = str(data[key].qty) + "-" + str(gle.qty)
+            # data[key].qty = data[key].qty + gle.qty
+                        
         data[key].debit += gle.debit
         data[key].credit += gle.credit
+        
+        if data[key].rate:
+            # data[key].rate=data[key].debit / data[key].qty             
+            data[key].rate = str(data[key].rate) + "/" + str(gle.rate)
+
 
         data[key].debit_in_account_currency += gle.debit_in_account_currency
         data[key].credit_in_account_currency += gle.credit_in_account_currency
