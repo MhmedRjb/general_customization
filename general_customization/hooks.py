@@ -119,6 +119,8 @@ doctype_js = {
 
 override_doctype_class = {
     "Sales Invoice": "general_customization.overrides.sales_invoice.CustomSalesInvoice",
+    "POS Invoice Merge Log": "general_customization.overrides.pos_invoice_merge_log.CustomPOSInvoiceMergeLog",
+
 }
 
 # Document Events
