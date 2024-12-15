@@ -8,7 +8,9 @@ app_license = "mit"
 
 # Includes in <head>
 # ------------------
-
+app_include_js = [
+"/assets/general_customization/js/custom_pos_item_cart.js",
+]
 # include js, css files in header of desk.html
 app_include_css = "/assets/general_customization/css/example.css"
 # app_include_js = "/assets/general_customization/js/general_customization.js"
@@ -127,14 +129,12 @@ override_doctype_class = {
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
-
+doc_events = {
+    "Delivery Note": {
+        "on_update_after_submit": "general_customization.status.delivery_note",
+        "before_insert": "general_customization.constrain.delivery_note",
+    }
+}
 # Scheduled Tasks
 # ---------------
 
