@@ -34,7 +34,10 @@ doctype_js = {
     "Sales Invoice": "public/js/Sales_Invoice.js",
     "Purchase Invoice": "public/js/Purchase_Invoice.js",
 }
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_list_js = {
+    "Delivery Note": "public/js/delivery_note_lsit.js",
+    "Purchase Receipt": "public/js/purchase_receipt_list.js",
+    }
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -121,20 +124,29 @@ doctype_js = {
 
 override_doctype_class = {
     "Sales Invoice": "general_customization.overrides.sales_invoice.CustomSalesInvoice",
-    "POS Invoice Merge Log": "general_customization.overrides.pos_invoice_merge_log.CustomPOSInvoiceMergeLog",
 
 }
 
 # Document Events
 # ---------------
 # Hook on document methods and events
-
 doc_events = {
-    "Delivery Note": {
-        "on_update_after_submit": "general_customization.status.delivery_note",
-        "before_insert": "general_customization.constrain.delivery_note",
+    "Sales Invoice": {
+        "before_insert": "general_customization.events.states.sales_invoice",
+        "on_submit": "general_customization.events.states.sales_invoice",
+        "on_cancel": "general_customization.events.states.cancel_sales_invoice",
+    },
+    "Purchase Invoice": {
+        "before_insert": "general_customization.events.states.purchase_invoice",
+        "on_submit": "general_customization.events.states.purchase_invoice",
+        "on_cancel": "general_customization.events.states.cancel_purchase_invoice",
+    },
+    "POS Invoice": {
+        "on_submit": "general_customization.overrides.pos_invoice.add_balance_on",
+        "before_validate": "general_customization.overrides.pos_invoice.add_balance_on",
     }
 }
+
 # Scheduled Tasks
 # ---------------
 

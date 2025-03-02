@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PAY-{MM}{customer}--{paid_amount}-{#####}",
+ "creation": "2025-01-21 19:01:11.626567",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_dknk",
+  "amended_from",
+  "section_break_tsch",
+  "customer",
+  "party_balance",
+  "currency",
+  "paid_amount",
+  "paid_to",
+  "payment_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_dknk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "POS Payment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "section_break_tsch",
+   "fieldtype": "Section Break"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "party_balance",
+   "fieldtype": "Currency",
+   "label": "Party Balance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "paid_amount",
+   "fieldtype": "Currency",
+   "label": "Paid Amount",
+   "options": "currency"
+  },
+  {
+   "allow_in_quick_entry": 1,
+   "fieldname": "paid_to",
+   "fieldtype": "Link",
+   "label": "Paid to",
+   "link_filters": "[[\"Account\",\"parent_account\",\"=\",\"\u0627\u0644\u0646\u0642\u062f\u064a\u0629 \u0627\u0644\u062d\u0627\u0636\u0631\u0629 - E\"]]",
+   "options": "Account"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-01-21 19:50:43.523471",
+ "modified_by": "Administrator",
+ "module": "general customiztion",
+ "name": "POS Payment",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_seen": 1,
+ "track_views": 1
+}

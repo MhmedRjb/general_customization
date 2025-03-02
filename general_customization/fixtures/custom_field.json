@@ -17,5 +17,14 @@
     "insert_after": "tax_id",
     "label": "party_balance",
     "name": "Purchase Invoice-party_balance"
+   },
+   {
+    "doctype": "Custom Field",
+    "dt": "POS Invoice",
+    "fieldname": "party_balance",
+    "fieldtype": "Read Only",
+    "insert_after": "pos_profile",
+    "label": "Party Balance",
+    "name": "POS Invoice-party_balance"
    }
 ]
