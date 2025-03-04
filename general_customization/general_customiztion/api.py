@@ -30,7 +30,7 @@ def get_features():
         features_data = frappe.db.get_list(
             'TheFeatures',
             filters={"to_publish": 1}, 
-            fields=["name", "title", "description","to_publish","layout_type"]  # Add any other fields you need
+            fields=["name", "title", "description","to_publish","layout_type","image","button"]  # Add any other fields you need
         )
 
         # Debugging prints (visible in server logs)
